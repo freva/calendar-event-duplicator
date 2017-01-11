@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="browser_action.css" type="text/css">
+    <script type="text/javascript" src="bg.js"></script>
+    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+</head>
+
+<body>
+    <header>
+        <div class="popup-title">
+            <a data-href="calendar_ui_url" target="_blank">
+                <span class="i18n" id="logo_text">Google Calendar</span>
+            </a>
+        </div>
+    </header>
+
+    <section>
+        <div id="content">
+            <div id="authorize-div" style="display: none">
+                <p>Authorize access to Google Calendar API</p>
+                <!--Button for the user to click to initiate auth sequence -->
+                <button id="authorize-button" class="button">Authorize</button>
+            </div>
+            <pre id="output"></pre>
+
+            <div id="add-event">
+                <h2 class="i18n" id="add_an_event">Add an Event</h2>
+                <select id="quick-add-calendar-list" />
+                <textarea id="quick-add-event-title" rows="5" tabindex="1"></textarea>
+                <div class="quick-add-buttons">
+                    <button id="quick_add_button" class="button i18n" tabindex="2">Quick Add</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
