@@ -1,18 +1,17 @@
 {
    "browser_action": {
       "default_popup": "popup.html",
-      "default_title": "__MSG_google_calendar_extension_name__"
+      "default_title": "Event for Google Calendar"
    },
-   "content_security_policy": "script-src 'self' https://apis.google.com https://calendar.google.com; object-src 'self'",
-   "default_locale": "en",
-   "description": "__MSG_google_calendar_extension_desc__",
+   "content_security_policy": "script-src 'self' https://unpkg.com https://apis.google.com https://calendar.google.com; object-src 'self'",
+   "description": "Easily duplicate event with differetn start times in Google Calendar",
    "icons": {
-      "128": "icons/logo_calendar_256.png",
-      "16": "icons/logo_calendar_32.png",
-      "48": "icons/logo_calendar_96.png"
+      "128": "icons/calendar_icon_128.png",
+      "48": "icons/calendar_icon_48.png",
+      "16": "icons/calendar_icon_16.png"
    },
    "manifest_version": 2,
-   "name": "__MSG_google_calendar_extension_name__",
+   "name": "Event Duplicator for Google Calendar",
    "oauth2": {
       "client_id": "306625950022-8jkvcsqu851d5ph5u70t12c1291450tp.apps.googleusercontent.com",
       "scopes": [ "https://www.googleapis.com/auth/calendar" ]

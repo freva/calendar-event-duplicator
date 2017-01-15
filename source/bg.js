@@ -25,13 +25,13 @@ function checkAuth() {
  */
 function handleAuthResult(authResult) {
     var authorizeDiv = document.getElementById('authorize-div');
-    var addEventDiv = document.getElementById('add-event');
+    var addEventDiv = document.getElementById('add-event-form');
 
     if (authResult && !authResult.error) {
         authorizeDiv.style.display = 'none';
         addEventDiv.style.display = 'inline';
-		// Load Google Calendar client library. List upcoming events once client library is loaded.
-        gapi.client.load('calendar', 'v3', listUpcomingEvents);
+		addEventDiv.addEventListener('submit', submitAddEventForm);
+        gapi.client.load('calendar', 'v3', initializeAddEventForm);
     } else {
         // Show auth UI, allowing the user to initiate authorization by
         // clicking authorize button, hide other UI.
@@ -41,50 +41,122 @@ function handleAuthResult(authResult) {
     }
 }
 
-
 /**
- * Print the summary and start datetime/date of the next ten events in
- * the authorized user's calendar. If no events are found an
- * appropriate message is printed.
+ * Initializes the add event form with user's calendars and Flatpickr for duration/start times
  */
-function listUpcomingEvents() {
-    var request = gapi.client.calendar.events.list({
-        'calendarId': 'primary',
-        'timeMin': (new Date()).toISOString(),
-        'showDeleted': false,
-        'singleEvents': true,
-        'maxResults': 10,
-        'orderBy': 'startTime'
-    });
-
+function initializeAddEventForm() {
+    var request = gapi.client.calendar.calendarList.list({
+        'minAccessRole': 'writer',
+        'showDeleted': false
+	});
+	
     request.execute(function(resp) {
         var events = resp.items;
-        appendPre('Upcoming events:');
+        var selectCalendar = document.getElementById('add-event-calendar-list');
+		selectCalendar.onchange = function () {
+			var selectedElement = selectCalendar.options[selectCalendar.selectedIndex];
+			var notification = selectedElement.dataset.notification;
+			document.getElementById('add-event-notification').value = notification;
+		};
 
-        if (events.length > 0) {
-            for (i = 0; i < events.length; i++) {
-                var event = events[i];
-                var when = event.start.dateTime;
-                if (!when) {
-                    when = event.start.date;
-                }
-                appendPre(event.summary + ' (' + when + ')')
-            }
-        } else {
-            appendPre('No upcoming events found.');
-        }
-
+		for (i = 0; i < events.length; i++) {
+			var opt = document.createElement('option');
+			opt.value = events[i].id;
+			opt.innerHTML = events[i].summary;
+			if (events[i].defaultReminders.length > 0) {
+				opt.dataset.notification = events[i].defaultReminders[0].minutes;
+			} else {
+				opt.dataset.notification = "";
+			}
+			selectCalendar.appendChild(opt);
+		}
+		selectCalendar.onchange();
     });
+	
+	Flatpickr.l10ns.default.firstDayOfWeek = 1;
+	flatpickr("#add-event-start-dates", {
+		"enableTime": true,
+		"mode": "multiple",
+		"altInput": true,
+		"altFormat": "M d, Y H:i",
+		"altInputClass": "start-date-element",
+		"time_24hr": true,
+		"minuteIncrement": 15,
+		"onOpen": function(selectedDates, dateStr, instance) {
+			document.getElementById('content').style.marginTop = "70px";
+		},
+		"onClose": function(selectedDates, dateStr, instance){
+			document.getElementById('content').style.marginTop = "0px";
+		}
+	});
+	
+	flatpickr("#add-event-duration", {
+		"enableTime": true,
+		"noCalendar": true,
+		"time_24hr": true
+	});
 }
 
-/**
- * Append a pre element to the body containing the given message
- * as its text node.
- *
- * @param {string} message Text to be placed in pre element.
- */
-function appendPre(message) {
-    var pre = document.getElementById('output');
-    var textContent = document.createTextNode(message + '\n');
-    pre.appendChild(textContent);
+function submitAddEventForm(event) {
+	event.preventDefault();
+	
+	var form = document.getElementById('add-event-form');
+	var values = {};
+	for (var i = 0; i < form.elements.length; i++) {
+	   var e = form.elements[i];
+	   values[e.name] = e.value;
+	}
+	
+	if (values["event-duration"].length == 0) {
+		return setMessage("error", "Select event duration");
+	}
+	
+	if (values["event-start-dates"].length == 0) {
+		return setMessage("error", "Select at least one start date");
+	}
+	
+	var duration = moment.duration(values["event-duration"], "HH:mm").asMilliseconds();
+	var startDates = values["event-start-dates"].split("; ");
+	for (var i = 0; i < startDates.length; i++) {
+		var startDate = new Date(Date.parse(startDates[i]));
+		var endDate = new Date(startDate.getTime() + duration );
+		
+		var eventResource = {
+			'summary': values["event-title"],
+			'start': {
+				'dateTime': moment(startDate).format()
+			},
+			'end': {
+				'dateTime': moment(endDate).format()
+			},
+			'reminders': {
+				'useDefault': false,
+				'overrides': [
+					{'method': 'popup', 'minutes': values["event-notification"]}
+				]
+			}
+		};
+
+		var request = gapi.client.calendar.events.insert({
+			'calendarId': values["event-calendar-list"],
+			'resource': eventResource
+		});
+
+		request.execute(function(response) {
+			if ("error" in response) {
+				return setMessage("error", response["message"]);
+			}
+		});
+	}
+	
+	form.reset();
+	setMessage("success", "Successfully added %number% events".replace("%number%", startDates.length));
+}
+
+
+function setMessage(type, message) {
+	var messageField = document.getElementById('add-event-message');
+	messageField.style.display = 'block';
+	messageField.className = type;
+	messageField.innerText = message;
 }

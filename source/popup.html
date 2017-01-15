@@ -3,15 +3,18 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="browser_action.css" type="text/css">
-    <script type="text/javascript" src="bg.js"></script>
-    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+	<link rel="stylesheet" href="https://unpkg.com/flatpickr@2.3.4/dist/flatpickr.min.css">
+    <script src="bg.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+	<script src="https://unpkg.com/flatpickr@2.3.4/dist/flatpickr.min.js"></script>
+	<script src="https://unpkg.com/moment@2.17.1/min/moment-with-locales.min.js"></script>
 </head>
 
 <body>
     <header>
         <div class="popup-title">
             <a data-href="calendar_ui_url" target="_blank">
-                <span class="i18n" id="logo_text">Google Calendar</span>
+                <span id="logo_text">Event Duplicator for Google Calendar</span>
             </a>
         </div>
     </header>
@@ -20,19 +23,35 @@
         <div id="content">
             <div id="authorize-div" style="display: none">
                 <p>Authorize access to Google Calendar API</p>
-                <!--Button for the user to click to initiate auth sequence -->
                 <button id="authorize-button" class="button">Authorize</button>
             </div>
-            <pre id="output"></pre>
 
-            <div id="add-event">
-                <h2 class="i18n" id="add_an_event">Add an Event</h2>
-                <select id="quick-add-calendar-list" />
-                <textarea id="quick-add-event-title" rows="5" tabindex="1"></textarea>
-                <div class="quick-add-buttons">
-                    <button id="quick_add_button" class="button i18n" tabindex="2">Quick Add</button>
-                </div>
-            </div>
+            <form method="post" action="#" id="add-event-form">
+                <h2 id="add_an_event">Add duplicate events</h2>
+				<div id="add-event-message" style="display: none"></div>
+				<div id="add-event-settings">
+					<label for="add-event-calendar-list">Calendar:</label>
+					<select id="add-event-calendar-list" name="event-calendar-list"></select>
+					<div class="clear"></div>
+					
+					<label for="add-event-title">Title:</label>
+					<input id="add-event-title" type="text" name="event-title" placeholder="e.g. Meeting" tabindex="1" />
+					<div class="clear"></div>
+					
+					<label for="add-event-duration">Duration:</label>
+					<input id="add-event-duration" type="text" name="event-duration" placeholder="In hours and minutes" tabindex="2" />
+					<div class="clear"></div>
+					
+					<label for="add-event-notification">Notification:</label>
+					<input id="add-event-notification" type="number" name="event-notification" placeholder="Number of minutes before" tabindex="3" />
+					<div class="clear"></div>
+				
+					<label for="add-event-start-dates">Start times:</label>
+					<textarea id="add-event-start-dates" name="event-start-dates"></textarea>
+				</div>
+				
+                <button id="add-event-button" class="button" tabindex="2">Quick Add</button>
+            </form>
         </div>
     </section>
 </body>
