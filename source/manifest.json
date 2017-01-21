@@ -1,10 +1,11 @@
 {
    "browser_action": {
       "default_popup": "popup.html",
-      "default_title": "Event for Google Calendar"
+      "default_title": "__MSG_ext_name__"
    },
-   "content_security_policy": "script-src 'self' https://unpkg.com https://apis.google.com https://calendar.google.com; object-src 'self'",
-   "description": "Easily duplicate event with differetn start times in Google Calendar",
+   "content_security_policy": "script-src 'self' https://unpkg.com https://accounts.google.com https://apis.google.com https://calendar.google.com; object-src 'self'",
+   "default_locale": "en",
+   "description": "__MSG_ext_description__",
    "icons": {
       "128": "icons/calendar_icon_128.png",
       "48": "icons/calendar_icon_48.png",
@@ -16,7 +17,6 @@
       "client_id": "306625950022-8jkvcsqu851d5ph5u70t12c1291450tp.apps.googleusercontent.com",
       "scopes": [ "https://www.googleapis.com/auth/calendar" ]
    },
-   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6y+v1DQEwGaWAfwzILi7oJRUObe1wvS20ogd2rlHaRkGPYEmn22BV+SrBAa0rU3J/y7dqsO7PsJRuCdcj4gDHSK3WAof+bpmNiGmjwKmr5zGv5OSsT7SrUQKYqDOzN551gj4ZKhPXaZ/xdZ0x428OBkRs8jY6HeXXze7UxKWo4SOp9E5cjtkzgWdiIxBl5j3kw3p1vvTTXUna0tcPs9mAcOsQPFp9pNPupOBxlXqlt5laZtTH+dHoczuYxJOU6SNOaQXgiRO50mWwxHaCGx8bNSnJn2tao3e25//ciW6F3s3rwZBK+9ZAmpTK3XLPYllApbacu5fqlwQsRtdrws2HwIDAQAB",
-   "permissions": ["identity", "http://*/*", "https://*/*", "http://calendar.google.com/calendar/*", "https://calendar.google.com/calendar/*" ],
-   "version": "0.1"
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsTOKUCIQPh4sRWkwzoN9UfROXS9SAsKQ6IDTkbqccMC6+IjW+2im5pX+9yizhwALYNhf3iNLER1ZHcGgP4WuUm/re0EjX+0TCDIDQF5qxZGJkscuWsB5uF5YwDOWO18dSE3MzAo3LHoq2v8IYEFbxysjxSUxlAbPTCJCEHyAOAmDD4L1RWv4l0oi7KAMzHcVGhbQC7z/BJKUkGlVkW/lYi84W0Hzzmzv98pwsr3jJ7KOLeaqt+TH8NM4zmfgpxwHpClvvtvfx460YARAH+Ex0zMmm5nS+HRLP7m2I6GYSmb4ETSg8J51XtGF9kvcEIGh6TZb9gTyzmz8UV883+zx8QIDAQAB",   "permissions": ["identity", "http://*/*", "https://*/*", "http://calendar.google.com/calendar/*", "https://calendar.google.com/calendar/*" ],
+   "version": "0.1.1"
 }

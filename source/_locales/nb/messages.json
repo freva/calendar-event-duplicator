@@ -1,0 +1,81 @@
+{
+	"ext_name": {
+		"message": "Hendelse Duplikator til Google Kalender"
+	},
+	"ext_description": {
+		"message": "Enkelt dupliser en hendelse med forskjellige start tidspunkter i Google Kalender"
+	},
+	
+	"add_duplicate_events_header": {
+		"message": "Legg til duplikate hendelser"
+	},
+	"add_event_calendar_label": {
+		"message": "Kalender:"
+	},
+	"add_event_title_label": {
+		"message": "Tittel:"
+	},
+	"add_event_title_placeholder": {
+		"message": "f.eks. “Møte”"
+	},
+	"add_event_duration_label": {
+		"message": "Varighet:"
+	},
+	"add_event_duration_placeholder": {
+		"message": "Antall timer og minutter"
+	},
+	"add_event_notification_label": {
+		"message": "Varsel:"
+	},
+	"add_event_notification_placeholder": {
+		"message": "Antall minutter før"
+	},
+	"add_event_start_times_label": {
+		"message": "Start tidspunkter:"
+	},
+	"add_event_button": {
+		"message": "Legg til hendelser"
+	},
+	
+	"authorize_header": {
+		"message": "Gi tilgang til Kalender"
+	},
+	"authorize_explanation": {
+		"message": "Hendelse Duplikator til Google Kalender lar deg duplikere samme hendelse over forskjellige start tidspunkter. For å gjøre dette, må du gi tillegget tilgang til din kalender. Dette er en instilling du må gjøre kun en gang for å bruke dette tillegget."
+	},
+	"authorize_button": {
+		"message": "Gi tilgang"
+	},
+	
+	"message_error_no_duration": {
+		"message": "Velg hendelse varighet"
+	},
+	"message_error_no_start_times": {
+		"message": "Velg minst et start tidspunkt"
+	},
+	"message_success_event_created": {
+		"message": "Lagt til $number$ arrangementer",
+		"placeholders": {
+			"number": {
+				"content": "$1",
+				"example": "5"
+			}
+		}
+	},
+	
+	"flatpickr_locale": {
+		"message": "{
+			'weekdays': {
+				'shorthand': ['Søn', 'Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør'],
+				'longhand': ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag']
+			},
+			'months': {
+				'shorthand': ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'],
+				'longhand': ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember']
+			},
+			'firstDayOfWeek': 1,
+			'scrollTitle': 'Bla for å forandre',
+			'toggleTitle': 'Klikk for å velge'
+		}"
+	}
+}

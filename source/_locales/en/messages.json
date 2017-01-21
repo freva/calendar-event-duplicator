@@ -1,0 +1,100 @@
+{
+	"ext_name": {
+		"description": "Extension name",
+		"message": "Event Duplicator for Google Calendar"
+	},
+	"ext_description": {
+		"description": "Extension description",
+		"message": "Easily duplicate an event with different start times in Google Calendar"
+	},
+	
+	"add_duplicate_events_header": {
+		"description": "Header that appears above the form that lets users add custom events",
+		"message": "Add duplicate events"
+	},
+	"add_event_calendar_label": {
+		"description": "Label next to calendar select",
+		"message": "Calendar:"
+	},
+	"add_event_title_label": {
+		"description": "Label next to title input",
+		"message": "Title:"
+	},
+	"add_event_title_placeholder": {
+		"description": "Placeholder inside title input",
+		"message": "e.g. “Meeting”"
+	},
+	"add_event_duration_label": {
+		"description": "Label next to duration input",
+		"message": "Duration:"
+	},
+	"add_event_duration_placeholder": {
+		"description": "Placeholder inside duration input",
+		"message": "In hours and minutes"
+	},
+	"add_event_notification_label": {
+		"description": "Label next to notification input",
+		"message": "Notification:"
+	},
+	"add_event_notification_placeholder": {
+		"description": "Placeholder inside notification input",
+		"message": "Number of minutes before"
+	},
+	"add_event_start_times_label": {
+		"description": "Label over start times text area",
+		"message": "Start times:"
+	},
+	"add_event_button": {
+		"description": "Text inside the submit button for add event form",
+		"message": "Add Events"
+	},
+	
+	"authorize_header": {
+		"description": "Header that appears above authorize form",
+		"message": "Authorize access to Calendar"
+	},
+	"authorize_explanation": {
+		"description": "A detailed message explaining the OAuth flow",
+		"message": "Event Duplicator for Google Calendar lets you duplicate same event across different start times. For this, you need to grant it access to your calendar. This is a one-time setup step required before you can use this app."
+	},
+	"authorize_button": {
+		"description": "Text inside the button to authorize access",
+		"message": "Authorize"
+	},
+	
+	"message_error_no_duration": {
+		"description": "The error message that is displayed if the user tries to create event without duration",
+		"message": "Select event duration"
+	},
+	"message_error_no_start_times": {
+		"description": "The error message that is displayed if the user tries to create event without start times",
+		"message": "Select at least one start date"
+	},
+	"message_success_event_created": {
+		"description": "The message that is displayed when user successfully duplicates an event",
+		"message": "Successfully added $number$ events",
+		"placeholders": {
+			"number": {
+				"content": "$1",
+				"example": "5"
+			}
+		}
+	},
+	
+	"flatpickr_locale": {
+		"description": "Locale string used by flatpickr to display the calendar",
+		"message": "{
+			'weekdays': {
+				'shorthand': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+				'longhand': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+			},
+			'months': {
+				'shorthand': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+				'longhand': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+			},
+			'firstDayOfWeek': 1,
+			'scrollTitle': 'Scroll to change',
+			'toggleTitle': 'Click to toggle'
+		}"
+	}
+}

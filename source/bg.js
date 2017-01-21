@@ -1,22 +1,29 @@
-function getParams(immediate) {
+/*
+ * Initialize extension: set localization string, call check authorization.
+ */
+function init() {
+	localizeAttribute("placeholder");
+	localizeAttribute("innerHTML");
+
+	checkAuth();
+}
+
+function localizeAttribute(attribute) {
+	var objects = document.querySelectorAll('[data-' + attribute + ']');
+	for(i = 0; i < objects.length; i++) {
+		objects[i][attribute] = chrome.i18n.getMessage(objects[i].getAttribute("data-" + attribute));
+	}
+}
+
+/**
+ * Attempt to get access token from authorization server.
+ */
+function checkAuth() {
     var manifest = chrome.runtime.getManifest();
     var clientId = encodeURIComponent(manifest.oauth2.client_id);
     var scopes = manifest.oauth2.scopes.join(' ');
 
-    return {'client_id': clientId, 'scope': scopes, 'immediate': immediate};
-}
-
-/**
- * Initiate auth flow in response to user clicking authorize button.
- * @param {Event} event Button click event.
- */
-function handleAuthClick(event) {
-    gapi.auth.authorize(getParams(false), handleAuthResult);
-    return false;
-}
-
-function checkAuth() {
-    gapi.auth.authorize(getParams(true), handleAuthResult);
+    gapi.auth.authorize({'client_id': clientId, 'scope': scopes, 'immediate': true}, handleAuthResult);
 }
 
 /**
@@ -26,19 +33,24 @@ function checkAuth() {
 function handleAuthResult(authResult) {
     var authorizeDiv = document.getElementById('authorize-div');
     var addEventDiv = document.getElementById('add-event-form');
-
-    if (authResult && !authResult.error) {
+	
+    if (authResult.access_token) {
         authorizeDiv.style.display = 'none';
         addEventDiv.style.display = 'inline';
 		addEventDiv.addEventListener('submit', submitAddEventForm);
         gapi.client.load('calendar', 'v3', initializeAddEventForm);
-    } else {
+    } else if (authResult.error) {
         // Show auth UI, allowing the user to initiate authorization by
         // clicking authorize button, hide other UI.
-        authorizeDiv.addEventListener("click", handleAuthClick);
-        authorizeDiv.style.display = 'inline';
         addEventDiv.style.display = 'none';
-    }
+        authorizeDiv.style.display = 'inline';
+        authorizeDiv.addEventListener("click", function (event) {
+			event.preventDefault();
+			chrome.identity.getAuthToken({'interactive': true}, handleAuthResult);
+		});
+    } else { // The token has expired, remove it and request new
+		chrome.identity.removeCachedAuthToken({'token': authResult}, checkAuth);
+	}
 }
 
 /**
@@ -73,27 +85,29 @@ function initializeAddEventForm() {
 		selectCalendar.onchange();
     });
 	
-	Flatpickr.l10ns.default.firstDayOfWeek = 1;
-	flatpickr("#add-event-start-dates", {
-		"enableTime": true,
-		"mode": "multiple",
-		"altInput": true,
-		"altFormat": "M d, Y H:i",
-		"altInputClass": "start-date-element",
-		"time_24hr": true,
-		"minuteIncrement": 15,
-		"onOpen": function(selectedDates, dateStr, instance) {
+	var flatpickr_locale = chrome.i18n.getMessage("flatpickr_locale").replace(/'/g , "\"");
+	Flatpickr.l10ns["custom"] = JSON.parse(flatpickr_locale);
+	flatpickr("#add-event-start-times", {
+		locale: "custom",
+		enableTime: true,
+		mode: "multiple",
+		altInput: true,
+		altFormat: "M d, Y H:i",
+		altInputClass: "start-times-visible",
+		time_24hr: true,
+		minuteIncrement: 15,
+		onOpen: function(selectedDates, dateStr, instance) {
 			document.getElementById('content').style.marginTop = "70px";
 		},
-		"onClose": function(selectedDates, dateStr, instance){
+		onClose: function(selectedDates, dateStr, instance){
 			document.getElementById('content').style.marginTop = "0px";
 		}
 	});
 	
 	flatpickr("#add-event-duration", {
-		"enableTime": true,
-		"noCalendar": true,
-		"time_24hr": true
+		enableTime: true,
+		noCalendar: true,
+		time_24hr: true
 	});
 }
 
@@ -108,17 +122,17 @@ function submitAddEventForm(event) {
 	}
 	
 	if (values["event-duration"].length == 0) {
-		return setMessage("error", "Select event duration");
+		return setMessage("error", chrome.i18n.getMessage("message_error_no_duration"));
 	}
 	
-	if (values["event-start-dates"].length == 0) {
-		return setMessage("error", "Select at least one start date");
+	if (values["event-start-times"].length == 0) {
+		return setMessage("error", chrome.i18n.getMessage("message_error_no_start_times"));
 	}
 	
 	var duration = moment.duration(values["event-duration"], "HH:mm").asMilliseconds();
-	var startDates = values["event-start-dates"].split("; ");
-	for (var i = 0; i < startDates.length; i++) {
-		var startDate = new Date(Date.parse(startDates[i]));
+	var startTimes = values["event-start-times"].split("; ");
+	for (var i = 0; i < startTimes.length; i++) {
+		var startDate = new Date(Date.parse(startTimes[i]));
 		var endDate = new Date(startDate.getTime() + duration );
 		
 		var eventResource = {
@@ -150,7 +164,7 @@ function submitAddEventForm(event) {
 	}
 	
 	form.reset();
-	setMessage("success", "Successfully added %number% events".replace("%number%", startDates.length));
+	setMessage("success", chrome.i18n.getMessage("message_success_event_created", [startTimes.length]));
 }
 
 
@@ -159,4 +173,8 @@ function setMessage(type, message) {
 	messageField.style.display = 'block';
 	messageField.className = type;
 	messageField.innerText = message;
+}
+
+function setFlatpickerLocale() {
+	
 }
