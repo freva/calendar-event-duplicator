@@ -81,20 +81,25 @@
 		}
 	},
 	
-	"flatpickr_locale": {
-		"description": "Locale string used by flatpickr to display the calendar",
-		"message": "{
-			'weekdays': {
-				'shorthand': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-				'longhand': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-			},
-			'months': {
-				'shorthand': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-				'longhand': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-			},
-			'firstDayOfWeek': 1,
-			'scrollTitle': 'Scroll to change',
-			'toggleTitle': 'Click to toggle'
-		}"
+	"flatpickr_weekdays_shorthand": {
+		"message": "['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+	},
+	"flatpickr_weekdays_longhand": {
+		"message": "['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']"
+	},
+	"flatpickr_months_shorthand": {
+		"message": "['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']"
+	},
+	"flatpickr_months_longhand": {
+		"message": "['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']"
+	},
+	"flatpickr_scrollTitle": {
+		"message": "Scroll to change"
+	},
+	"flatpickr_toggleTitle": {
+		"message": "Click to toggle"
+	},
+	"flatpickr_firstDayOfWeek": {
+		"message": "1"
 	}
 }

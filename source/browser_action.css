@@ -36,15 +36,15 @@ section {
 textarea.start-times-visible {
   width: 100%;
   height: 100px;
-  margin: 4px 0;
-  padding: 2px;
+  margin: 5px 0;
+  padding: 3px;
   font-family: monospace;
 }
 
 #add-event-form label {
   float: left;
-  margin: 4px 0;
-  padding: 2px;
+  margin: 5px 0;
+  padding: 3px;
   font-weight: bold;
   width: 100%;
 }
@@ -56,8 +56,8 @@ textarea.start-times-visible {
 #add-event-settings input, #add-event-settings select {
   float: right;
   width: 195px;
-  margin: 4px 0;
-  padding: 2px;
+  margin: 5px 0;
+  padding: 3px;
 }
 
 

@@ -1,3 +1,5 @@
+var calendar;
+
 /*
  * Initialize extension: set localization string, call check authorization.
  */
@@ -85,23 +87,15 @@ function initializeAddEventForm() {
 		selectCalendar.onchange();
     });
 	
-	var flatpickr_locale = chrome.i18n.getMessage("flatpickr_locale").replace(/'/g , "\"");
-	Flatpickr.l10ns["custom"] = JSON.parse(flatpickr_locale);
-	flatpickr("#add-event-start-times", {
-		locale: "custom",
+	setFlatpickerLocale();
+	calendar = flatpickr("#add-event-start-times", {
 		enableTime: true,
 		mode: "multiple",
 		altInput: true,
 		altFormat: "M d, Y H:i",
 		altInputClass: "start-times-visible",
 		time_24hr: true,
-		minuteIncrement: 15,
-		onOpen: function(selectedDates, dateStr, instance) {
-			document.getElementById('content').style.marginTop = "70px";
-		},
-		onClose: function(selectedDates, dateStr, instance){
-			document.getElementById('content').style.marginTop = "0px";
-		}
+		minuteIncrement: 15
 	});
 	
 	flatpickr("#add-event-duration", {
@@ -164,6 +158,7 @@ function submitAddEventForm(event) {
 	}
 	
 	form.reset();
+	calendar.clear();
 	setMessage("success", chrome.i18n.getMessage("message_success_event_created", [startTimes.length]));
 }
 
@@ -176,5 +171,16 @@ function setMessage(type, message) {
 }
 
 function setFlatpickerLocale() {
+	function getLocaleJson(msgId) {
+		var jsonString = chrome.i18n.getMessage(msgId).replace(/'/g , "\"");
+		return JSON.parse(jsonString);
+	}
 	
+	Flatpickr.l10ns.default.weekdays.shorthand = getLocaleJson("flatpickr_weekdays_shorthand");
+	Flatpickr.l10ns.default.weekdays.longhand = getLocaleJson("flatpickr_weekdays_longhand");
+	Flatpickr.l10ns.default.months.shorthand = getLocaleJson("flatpickr_months_shorthand");
+	Flatpickr.l10ns.default.months.longhand = getLocaleJson("flatpickr_months_longhand");
+	Flatpickr.l10ns.default.scrollTitle = chrome.i18n.getMessage("flatpickr_scrollTitle");
+	Flatpickr.l10ns.default.toggleTitle = chrome.i18n.getMessage("flatpickr_toggleTitle");
+	Flatpickr.l10ns.default.firstDayOfWeek = parseInt(chrome.i18n.getMessage("flatpickr_firstDayOfWeek"));
 }
