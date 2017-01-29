@@ -53,6 +53,9 @@
 	"message_error_no_start_times": {
 		"message": "Velg minst et start tidspunkt"
 	},
+	"message_success_saved_default" : {
+		"message": "Lagret ny standardverdi for denne kalenderen"
+	},
 	"message_success_event_created": {
 		"message": "Lagt til $number$ arrangementer",
 		"placeholders": {

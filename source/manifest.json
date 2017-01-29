@@ -18,6 +18,6 @@
       "scopes": [ "https://www.googleapis.com/auth/calendar" ]
    },
    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsTOKUCIQPh4sRWkwzoN9UfROXS9SAsKQ6IDTkbqccMC6+IjW+2im5pX+9yizhwALYNhf3iNLER1ZHcGgP4WuUm/re0EjX+0TCDIDQF5qxZGJkscuWsB5uF5YwDOWO18dSE3MzAo3LHoq2v8IYEFbxysjxSUxlAbPTCJCEHyAOAmDD4L1RWv4l0oi7KAMzHcVGhbQC7z/BJKUkGlVkW/lYi84W0Hzzmzv98pwsr3jJ7KOLeaqt+TH8NM4zmfgpxwHpClvvtvfx460YARAH+Ex0zMmm5nS+HRLP7m2I6GYSmb4ETSg8J51XtGF9kvcEIGh6TZb9gTyzmz8UV883+zx8QIDAQAB",
-   "permissions": ["identity", "http://*/*", "https://*/*", "http://calendar.google.com/calendar/*", "https://calendar.google.com/calendar/*" ],
-   "version": "0.2.2"
+   "permissions": ["identity", "storage", "http://*/*", "https://*/*", "http://calendar.google.com/calendar/*", "https://calendar.google.com/calendar/*" ],
+   "version": "0.3.0.7"
 }

@@ -70,6 +70,10 @@
 		"description": "The error message that is displayed if the user tries to create event without start times",
 		"message": "Select at least one start date"
 	},
+	"message_success_saved_default" : {
+		"description": "The message that is diplayed when user successfully saves a default value for a field",
+		"message": "Saved new default for this calendar"
+	},
 	"message_success_event_created": {
 		"description": "The message that is displayed when user successfully duplicates an event",
 		"message": "Successfully added $number$ events",

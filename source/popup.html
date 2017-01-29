@@ -4,10 +4,13 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="browser_action.css" type="text/css">
 	<link rel="stylesheet" href="https://unpkg.com/flatpickr@2.3.4/dist/themes/material_green.css">
+	<link rel="stylesheet" href="https://unpkg.com/toastr@2.1.2/build/toastr.min.css">
     <script src="bg.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=init"></script>
+	<script src="https://unpkg.com/jquery@3.1.1/dist/jquery.min.js"></script>
 	<script src="https://unpkg.com/flatpickr@2.3.4"></script>
 	<script src="https://unpkg.com/moment@2.17.1/min/moment-with-locales.min.js"></script>
+	<script src="https://unpkg.com/toastr@2.1.2/build/toastr.min.js"></script>
 </head>
 
 <body>
@@ -24,7 +27,7 @@
             <div id="authorize-div" style="display: none">
 				<h2 data-innerHTML="authorize_header">Add duplicate events</h2>
                 <p data-innerHTML="authorize_explanation">Authorize access to Google Calendar API</p>
-                <button id="authorize-button" data-innerHTML="authorize_button" class="button">Authorize</button>
+                <button id="authorize-button" data-innerHTML="authorize_button" class="submit">Authorize</button>
             </div>
 
             <form method="post" action="#" id="add-event-form">
@@ -37,20 +40,23 @@
 					
 					<label for="add-event-title" data-innerHTML="add_event_title_label">Title:</label>
 					<input id="add-event-title" data-placeholder="add_event_title_placeholder" type="text" name="event-title" tabindex="1" />
+					<button data-field="add-event-title" type="button" class="save"></button>
 					<div class="clear"></div>
 					
 					<label for="add-event-duration" data-innerHTML="add_event_duration_label">Duration:</label>
-					<input id="add-event-duration" data-placeholder="add_event_duration_placeholder"type="text" name="event-duration" tabindex="2" />
+					<input id="add-event-duration" data-placeholder="add_event_duration_placeholder" type="text" name="event-duration" tabindex="2" />
+					<button data-field="add-event-duration" type="button" class="save"></button>
 					<div class="clear"></div>
 					
 					<label for="add-event-notification" data-innerHTML="add_event_notification_label">Notification:</label>
 					<input id="add-event-notification" data-placeholder="add_event_notification_placeholder" type="number" name="event-notification" tabindex="3" />
+					<button data-field="add-event-notification" type="button" class="save"></button>
 				</div>
 				
 				<label for="add-event-start-times" data-innerHTML="add_event_start_times_label">Start times:</label>
 				<textarea id="add-event-start-times" name="event-start-times" tabindex="4"></textarea>
 				
-                <button id="add-event-button" data-innerHTML="add_event_button" class="button" tabindex="5">Add Events</button>
+                <button id="add-event-button" data-innerHTML="add_event_button" class="submit" tabindex="5">Add Events</button>
             </form>
         </div>
     </section>

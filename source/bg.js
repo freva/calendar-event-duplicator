@@ -1,3 +1,4 @@
+var defaults = {};
 var calendar;
 
 /*
@@ -6,7 +7,7 @@ var calendar;
 function init() {
 	localizeAttribute("placeholder");
 	localizeAttribute("innerHTML");
-
+		
 	checkAuth();
 }
 
@@ -68,23 +69,38 @@ function initializeAddEventForm() {
         var events = resp.items;
         var selectCalendar = document.getElementById('add-event-calendar-list');
 		selectCalendar.onchange = function () {
-			var selectedElement = selectCalendar.options[selectCalendar.selectedIndex];
-			var notification = selectedElement.dataset.notification;
-			document.getElementById('add-event-notification').value = notification;
-		};
+			var selectedCalendarId = selectCalendar.options[selectCalendar.selectedIndex].value;
+			if (!(selectedCalendarId in defaults)) {
+				defaults[selectedCalendarId] = {};
+			}
+			
+			var inputs = document.getElementById('add-event-settings').getElementsByTagName('input');
+			for (i = 0; i < inputs.length; i++) {
+				if (inputs[i].name in defaults[selectedCalendarId]) {
+					inputs[i].value = defaults[selectedCalendarId][inputs[i].name];
+				} else {
+					inputs[i].value = "";
+				}
+			}
+		}
 
 		for (i = 0; i < events.length; i++) {
 			var opt = document.createElement('option');
 			opt.value = events[i].id;
 			opt.innerHTML = events[i].summary;
-			if (events[i].defaultReminders.length > 0) {
-				opt.dataset.notification = events[i].defaultReminders[0].minutes;
-			} else {
-				opt.dataset.notification = "";
-			}
 			selectCalendar.appendChild(opt);
 		}
-		selectCalendar.onchange();
+		
+		chrome.storage.sync.get('defaults', function(result) {
+			if (!('defaults' in result)) return; 
+			
+			for (i = 0; i < events.length; i++) { // Only keep the defaults of currently existing calendars
+				if (events[i].id in result.defaults) {
+					defaults[events[i].id] = result.defaults[events[i].id];
+				}
+			}
+			selectCalendar.onchange();
+		});
     });
 	
 	setFlatpickerLocale();
@@ -103,6 +119,20 @@ function initializeAddEventForm() {
 		noCalendar: true,
 		time_24hr: true
 	});
+	
+	toastr.options = {
+		positionClass: "toast-position",
+		preventDuplicates: true,
+		timeOut: 5000,
+		hideEasing: "linear",
+		showMethod: "fadeIn",
+		hideMethod: "fadeOut"
+	}
+	
+	var bns = document.getElementsByClassName("save");
+	for (i = 0; i < bns.length; i++) {
+		bns[i].addEventListener("click", saveDefaultValue);
+	}
 }
 
 function submitAddEventForm(event) {
@@ -116,11 +146,11 @@ function submitAddEventForm(event) {
 	}
 	
 	if (values["event-duration"].length == 0) {
-		return setMessage("error", chrome.i18n.getMessage("message_error_no_duration"));
+		return toastr.warning(chrome.i18n.getMessage("message_error_no_duration"));
 	}
 	
 	if (values["event-start-times"].length == 0) {
-		return setMessage("error", chrome.i18n.getMessage("message_error_no_start_times"));
+		return toastr.warning(chrome.i18n.getMessage("message_error_no_start_times"));
 	}
 	
 	var duration = moment.duration(values["event-duration"], "HH:mm").asMilliseconds();
@@ -129,21 +159,23 @@ function submitAddEventForm(event) {
 		var startDate = new Date(Date.parse(startTimes[i]));
 		var endDate = new Date(startDate.getTime() + duration );
 		
+		var shouldOverrideReminders = values["event-notification"].length != 0;
 		var eventResource = {
-			'summary': values["event-title"],
-			'start': {
-				'dateTime': moment(startDate).format()
+			summary: values["event-title"],
+			start: {
+				dateTime: moment(startDate).format()
 			},
-			'end': {
-				'dateTime': moment(endDate).format()
+			end: {
+				dateTime: moment(endDate).format()
 			},
-			'reminders': {
-				'useDefault': false,
-				'overrides': [
-					{'method': 'popup', 'minutes': values["event-notification"]}
-				]
+			reminders: {
+				useDefault: !shouldOverrideReminders
 			}
 		};
+		
+		if (shouldOverrideReminders) {
+			eventResource.reminders.overrides = [{method: 'popup', 'minutes': values["event-notification"]}];
+		}
 
 		var request = gapi.client.calendar.events.insert({
 			'calendarId': values["event-calendar-list"],
@@ -152,22 +184,31 @@ function submitAddEventForm(event) {
 
 		request.execute(function(response) {
 			if ("error" in response) {
-				return setMessage("error", response["message"]);
+				toastr.error(response["message"]);
 			}
 		});
 	}
 	
 	form.reset();
 	calendar.clear();
-	setMessage("success", chrome.i18n.getMessage("message_success_event_created", [startTimes.length]));
+	document.getElementById('add-event-calendar-list').onchange();
+	toastr.success(chrome.i18n.getMessage("message_success_event_created", [startTimes.length]));
 }
 
 
-function setMessage(type, message) {
-	var messageField = document.getElementById('add-event-message');
-	messageField.style.display = 'block';
-	messageField.className = type;
-	messageField.innerText = message;
+function saveDefaultValue(event) {
+	var updateInput = document.getElementById(event.srcElement.dataset.field);
+	var selectCalendar = document.getElementById('add-event-calendar-list');
+	var selectedCalendarId = selectCalendar.options[selectCalendar.selectedIndex].value;
+	
+	if (!(selectedCalendarId in defaults)) {
+		defaults[selectedCalendarId] = {};
+	}
+	defaults[selectedCalendarId][updateInput.name] = updateInput.value.trim();
+
+	chrome.storage.sync.set({'defaults': defaults}, function() {
+		toastr.success(chrome.i18n.getMessage("message_success_saved_default"));
+	});
 }
 
 function setFlatpickerLocale() {
