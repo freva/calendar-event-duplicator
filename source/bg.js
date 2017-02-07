@@ -5,10 +5,14 @@ var calendar;
  * Initialize extension: set localization string, call check authorization.
  */
 function init() {
-	localizeAttribute("placeholder");
-	localizeAttribute("innerHTML");
-		
 	checkAuth();
+	
+	document.onreadystatechange = function () {
+		if (document.readyState == 'complete') {
+			localizeAttribute("placeholder");
+			localizeAttribute("innerhtml");
+		}
+	}
 }
 
 function localizeAttribute(attribute) {
@@ -105,11 +109,12 @@ function initializeAddEventForm() {
 	
 	setFlatpickerLocale();
 	calendar = flatpickr("#add-event-start-times", {
-		enableTime: true,
 		mode: "multiple",
-		altInput: true,
 		altFormat: "M d, Y H:i",
 		altInputClass: "start-times-visible",
+		enableTime: true,
+		weekNumbers: true,
+		altInput: true,
 		time_24hr: true,
 		minuteIncrement: 15
 	});
