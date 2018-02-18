@@ -1,11 +1,12 @@
 var defaults = {};
 var calendar;
+var access_token;
 
 /*
  * Initialize extension: set localization string, call check authorization.
  */
-function init() {
-	checkAuth();
+window.onload = function() {
+    checkAuth();
 	
 	document.onreadystatechange = function () {
 		if (document.readyState == 'complete') {
@@ -15,22 +16,21 @@ function init() {
 	}
 }
 
+function checkAuth() {
+    chrome.identity.getAuthToken({'interactive': false}, handleAuthResult);
+}
+
+function revokeAccess() {
+    console.log("Removing access token", access_token);
+    chrome.identity.removeCachedAuthToken({'token': access_token}, checkAuth);
+}
+
+
 function localizeAttribute(attribute) {
 	var objects = document.querySelectorAll('[data-' + attribute + ']');
 	for(i = 0; i < objects.length; i++) {
 		objects[i][attribute] = chrome.i18n.getMessage(objects[i].getAttribute("data-" + attribute));
 	}
-}
-
-/**
- * Attempt to get access token from authorization server.
- */
-function checkAuth() {
-    var manifest = chrome.runtime.getManifest();
-    var clientId = encodeURIComponent(manifest.oauth2.client_id);
-    var scopes = manifest.oauth2.scopes.join(' ');
-
-    gapi.auth.authorize({'client_id': clientId, 'scope': scopes, 'immediate': true}, handleAuthResult);
 }
 
 /**
@@ -41,12 +41,14 @@ function handleAuthResult(authResult) {
     var authorizeDiv = document.getElementById('authorize-div');
     var addEventDiv = document.getElementById('add-event-form');
 	
-    if (authResult.access_token) {
+    if (authResult && !authResult.error) {
+        access_token = authResult;
+        gapi.client.setToken({access_token: authResult});
         authorizeDiv.style.display = 'none';
         addEventDiv.style.display = 'inline';
 		addEventDiv.addEventListener('submit', submitAddEventForm);
         gapi.client.load('calendar', 'v3', initializeAddEventForm);
-    } else if (authResult.error) {
+    } else {
         // Show auth UI, allowing the user to initiate authorization by
         // clicking authorize button, hide other UI.
         addEventDiv.style.display = 'none';
@@ -55,9 +57,7 @@ function handleAuthResult(authResult) {
 			event.preventDefault();
 			chrome.identity.getAuthToken({'interactive': true}, handleAuthResult);
 		});
-    } else { // The token has expired, remove it and request new
-		chrome.identity.removeCachedAuthToken({'token': authResult}, checkAuth);
-	}
+    }
 }
 
 /**
@@ -70,6 +70,9 @@ function initializeAddEventForm() {
 	});
 	
     request.execute(function(resp) {
+        if ("code" in resp && resp.code == 401) return revokeAccess();
+		if ("error" in resp) return toastr.error(response["message"]);
+
         var events = resp.items;
         var selectCalendar = document.getElementById('add-event-calendar-list');
 		selectCalendar.onchange = function () {
@@ -188,9 +191,8 @@ function submitAddEventForm(event) {
 		});
 
 		request.execute(function(response) {
-			if ("error" in response) {
-				toastr.error(response["message"]);
-			}
+            if ("code" in resp && resp.code == 401) return revokeAccess();
+			if ("error" in response) return toastr.error(response["message"]);
 		});
 	}
 	
