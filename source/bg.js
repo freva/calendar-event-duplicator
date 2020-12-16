@@ -1,4 +1,5 @@
 const defaults = {};
+let lastUpdatedCalendarId;
 let flatpickrCalendar;
 let accessToken;
 
@@ -84,22 +85,23 @@ function initializeAddEventForm() {
 			}
 		}
 
-		for (let i = 0; i < events.length; i++) {
-			const opt = document.createElement('option');
-			opt.value = events[i].id;
-			opt.innerHTML = events[i].summary;
-			selectCalendar.appendChild(opt);
-		}
-		
-		chrome.storage.sync.get('defaults', function(result) {
-			if (!('defaults' in result)) return; 
-			
-			for (let i = 0; i < events.length; i++) { // Only keep the defaults of currently existing calendars
-				if (events[i].id in result.defaults) {
-					defaults[events[i].id] = result.defaults[events[i].id];
+        chrome.storage.sync.get(['defaults', 'lastUpdatedCalendarId'], function(result) {
+            lastUpdatedCalendarId = result.lastUpdatedCalendarId;
+
+            for (const { id, summary } of calendars) {
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.innerHTML = summary;
+                opt.selected = id === lastUpdatedCalendarId;
+                selectCalendar.appendChild(opt);
+
+                 // Only keep the defaults of currently existing calendars
+				if (id in result.defaults) {
+					defaults[id] = result.defaults[id];
 				}
-			}
-			selectCalendar.onchange();
+            }
+
+            selectCalendar.onchange();
 		});
     });
 	
@@ -152,6 +154,7 @@ function submitAddEventForm(event) {
 	
 	const duration = moment.duration(values['event-duration'], 'HH:mm');
 	const startTimes = values['event-start-times'].split('; ');
+	const isAllDay = duration.asMilliseconds() === 0;
 	for (let i = 0; i < startTimes.length; i++) {
 		const start = moment(startTimes[i]);
 		const end = start.clone().add(duration);
@@ -159,18 +162,15 @@ function submitAddEventForm(event) {
 		const shouldOverrideReminders = values['event-notification'].length !== 0;
 		const eventResource = {
 			summary: values['event-title'],
-			start: {
-				dateTime: moment(startDate).format()
-			},
-			end: {
-				dateTime: moment(endDate).format()
-			},
 			reminders: {
 				useDefault: !shouldOverrideReminders
 			}
 		};
-		
-		if (shouldOverrideReminders) {
+
+		eventResource['start'] = isAllDay ?  { date: start.format('YYYY-MM-DD') } : { dateTime: start.format() };
+        eventResource['end'] = isAllDay ? { date: start.format('YYYY-MM-DD') } : { dateTime: end.format() };
+
+		if (shouldOverrideReminders)
 			eventResource.reminders.overrides = [{method: 'popup', 'minutes': values['event-notification']}];
 
 		const request = gapi.client.calendar.events.insert({
@@ -182,11 +182,16 @@ function submitAddEventForm(event) {
             if (response?.code === 401) return revokeAccess();
 			if ('error' in response) return toastr.error(response['message']);
 		});
+
+        chrome.storage.sync.set({lastUpdatedCalendarId: values['event-calendar-list']}, () => { });
 	}
-	
+
+	const selectCalendar = document.getElementById('add-event-calendar-list');
+	const selectedIndex = selectCalendar.selectedIndex;
 	form.reset();
-	calendar.clear();
-	document.getElementById('add-event-calendar-list').onchange();
+	flatpickrCalendar.clear();
+	selectCalendar.selectedIndex = selectedIndex;
+	selectCalendar.onchange();
 	toastr.success(chrome.i18n.getMessage('message_success_event_created', [startTimes.length]));
 }
 
