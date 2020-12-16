@@ -17,7 +17,7 @@
 	<header>
 		<div class="popup-title">
 			<a data-href="calendar_ui_url" target="_blank">
-				<span id="logo_text" data-innerhtml="ext_name">Event Duplicator for Google Calendar</span>
+				<span id="logo_text" data-innerhtml="ext_name"></span>
 			</a>
 		</div>
 	</header>
@@ -25,38 +25,38 @@
 	<section>
 		<div id="content">
 			<div id="authorize-div" style="display: none">
-				<h2 data-innerhtml="authorize_header">Add duplicate events</h2>
-				<p data-innerhtml="authorize_explanation">Authorize access to Google Calendar API</p>
-				<button id="authorize-button" data-innerhtml="authorize_button" class="submit">Authorize</button>
+				<h2 data-innerhtml="authorize_header"></h2>
+				<p data-innerhtml="authorize_explanation"></p>
+				<button id="authorize-button" data-innerhtml="authorize_button" class="submit"></button>
 			</div>
 
 			<form method="post" action="#" id="add-event-form">
-				<h2 data-innerhtml="add_duplicate_events_header">Add duplicate events</h2>
+				<h2 data-innerhtml="add_duplicate_events_header"></h2>
 				<div id="add-event-message" style="display: none"></div>
 				<div id="add-event-settings">
-					<label for="add-event-calendar-list" data-innerhtml="add_event_calendar_label">Calendar:</label>
+					<label for="add-event-calendar-list" data-innerhtml="add_event_calendar_label"></label>
 					<select id="add-event-calendar-list" name="event-calendar-list"></select>
 					<div class="clear"></div>
 
-					<label for="add-event-title" data-innerhtml="add_event_title_label">Title:</label>
+					<label for="add-event-title" data-innerhtml="add_event_title_label"></label>
 					<input id="add-event-title" data-placeholder="add_event_title_placeholder" type="text" name="event-title" tabindex="1" />
 					<button data-field="add-event-title" type="button" class="save"></button>
 					<div class="clear"></div>
 
-					<label for="add-event-duration" data-innerhtml="add_event_duration_label">Duration:</label>
+					<label for="add-event-duration" data-innerhtml="add_event_duration_label"></label>
 					<input id="add-event-duration" data-placeholder="add_event_duration_placeholder" type="text" name="event-duration" tabindex="2" />
 					<button data-field="add-event-duration" type="button" class="save"></button>
 					<div class="clear"></div>
 
-					<label for="add-event-notification" data-innerhtml="add_event_notification_label">Notification:</label>
+					<label for="add-event-notification" data-innerhtml="add_event_notification_label"></label>
 					<input id="add-event-notification" data-placeholder="add_event_notification_placeholder" type="number" name="event-notification" tabindex="3" />
 					<button data-field="add-event-notification" type="button" class="save"></button>
 				</div>
 
-				<label for="add-event-start-times" data-innerhtml="add_event_start_times_label">Start times:</label>
+				<label for="add-event-start-times" data-innerhtml="add_event_start_times_label"></label>
 				<textarea id="add-event-start-times" name="event-start-times" tabindex="4"></textarea>
 
-				<button id="add-event-button" data-innerhtml="add_event_button" class="submit" tabindex="5">Add Events</button>
+				<button id="add-event-button" data-innerhtml="add_event_button" class="submit" tabindex="5"></button>
 			</form>
 		</div>
 	</section>

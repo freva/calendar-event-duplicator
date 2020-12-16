@@ -4,14 +4,9 @@ let accessToken;
 
 /* Initialize extension: set localization string, call check authorization. */
 window.onload = function() {
+    localizeAttribute('placeholder');
+    localizeAttribute('innerHTML');
     checkAuth();
-
-	document.onreadystatechange = function () {
-		if (document.readyState == 'complete') {
-			localizeAttribute('placeholder');
-			localizeAttribute('innerhtml');
-		}
-	}
 }
 
 function checkAuth() {
@@ -25,9 +20,9 @@ function revokeAccess() {
 
 
 function localizeAttribute(attribute) {
-	const objects = document.querySelectorAll('[data-' + attribute + ']');
-	for (let i = 0; i < objects.length; i++) {
-		objects[i][attribute] = chrome.i18n.getMessage(objects[i].getAttribute('data-' + attribute));
+	const objects = document.querySelectorAll('[data-' + attribute.toLowerCase() + ']');
+	for (const obj of objects) {
+		obj[attribute] = chrome.i18n.getMessage(obj.getAttribute('data-' + attribute.toLowerCase()));
 	}
 }
 
