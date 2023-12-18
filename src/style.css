@@ -130,7 +130,7 @@ button.submit:active {
 }
 
 button.save {
-  background: #777 url('icons/save.png');
+  background: #777 url('../public/icons/save.png');
   height: 17px;
   width: 17px;
   margin: 11px -23px;
