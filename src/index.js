@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const defaults = {};
 let lastUpdatedCalendarId;
 let flatpickrCalendar;
