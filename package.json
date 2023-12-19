@@ -9,6 +9,7 @@
   "devDependencies": {
     "flatpickr": "^4",
     "moment": "^2",
+    "toastr": "^2",
     "vite": "^5"
   }
 }

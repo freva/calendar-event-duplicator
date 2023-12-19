@@ -1,6 +1,8 @@
 import flatpickr from 'flatpickr';
 import moment from 'moment';
+import toastr from 'toastr';
 import 'flatpickr/dist/themes/material_green.css';
+import 'toastr/build/toastr.css';
 
 const addEventStartTimesDiv = document.getElementById('add-event-start-times');
 const defaults = {};
@@ -58,9 +60,7 @@ function handleAuthResult(authResult) {
     }
 }
 
-/**
- * Initializes the add event form with user's calendars and Flatpickr for duration/start times
- */
+/** Initializes the add event form with user's calendars and Flatpickr for duration/start times */
 function initializeAddEventForm() {
     const request = gapi.client.calendar.calendarList.list({
         minAccessRole: 'writer',
