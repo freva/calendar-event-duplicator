@@ -1,5 +1,8 @@
+import flatpickr from 'flatpickr';
 import moment from 'moment';
+import 'flatpickr/dist/themes/material_green.css';
 
+const addEventStartTimesDiv = document.getElementById('add-event-start-times');
 const defaults = {};
 let lastUpdatedCalendarId;
 let flatpickrCalendar;
@@ -13,7 +16,7 @@ window.onload = function() {
 }
 
 function checkAuth() {
-    chrome.identity.getAuthToken({'interactive': false}, handleAuthResult);
+    chrome.identity.getAuthToken({interactive: false}, handleAuthResult);
 }
 
 function revokeAccess() {
@@ -36,7 +39,7 @@ function localizeAttribute(attribute) {
 function handleAuthResult(authResult) {
     const authorizeDiv = document.getElementById('authorize-div');
     const addEventDiv = document.getElementById('add-event-form');
-	
+
     if (authResult && !authResult.error) {
         gapi.client.setToken({access_token: authResult});
         authorizeDiv.style.display = 'none';
@@ -50,7 +53,7 @@ function handleAuthResult(authResult) {
         authorizeDiv.style.display = 'inline';
         authorizeDiv.addEventListener('click', function (event) {
 			event.preventDefault();
-			chrome.identity.getAuthToken({'interactive': true}, handleAuthResult);
+			chrome.identity.getAuthToken({interactive: true}, handleAuthResult);
 		});
     }
 }
@@ -60,10 +63,10 @@ function handleAuthResult(authResult) {
  */
 function initializeAddEventForm() {
     const request = gapi.client.calendar.calendarList.list({
-        'minAccessRole': 'writer',
-        'showDeleted': false
+        minAccessRole: 'writer',
+        showDeleted: false
 	});
-	
+
     request.execute(function(response) {
         if (response?.code === 401) return revokeAccess();
 		if ('error' in response) return toastr.error(response['message']);
@@ -76,7 +79,7 @@ function initializeAddEventForm() {
 			if (!(selectedCalendarId in defaults)) {
 				defaults[selectedCalendarId] = {};
 			}
-			
+
 			var inputs = document.getElementById('add-event-settings').getElementsByTagName('input');
 			for (const input of inputs) {
 				if (input.name in defaults[selectedCalendarId]) {
@@ -98,7 +101,7 @@ function initializeAddEventForm() {
                 selectCalendar.appendChild(opt);
 
                  // Only keep the defaults of currently existing calendars
-				if (id in result.defaults) {
+				if (result.defaults && id in result.defaults) {
 					defaults[id] = result.defaults[id];
 				}
             }
@@ -108,21 +111,23 @@ function initializeAddEventForm() {
     });
 	
 	setFlatpickerLocale();
-	flatpickrCalendar = flatpickr('#add-event-start-times', {
+	flatpickrCalendar = flatpickr(addEventStartTimesDiv, {
 		mode: 'multiple',
 		altFormat: 'M d, Y H:i',
-		altInputClass: 'start-times-visible',
 		enableTime: true,
 		weekNumbers: true,
 		altInput: true,
 		time_24hr: true,
-		minuteIncrement: 15
+		minuteIncrement: 15,
+		onChange: (dates, datesStr, instance) => addEventStartTimesDiv.innerText = datesStr,
 	});
+	addEventStartTimesDiv.onclick = flatpickrCalendar.open;
 	
 	flatpickr('#add-event-duration', {
 		enableTime: true,
 		noCalendar: true,
-		time_24hr: true
+		time_24hr: true,
+		defaultHour: 8,
 	});
 	
 	toastr.options = {
@@ -131,7 +136,7 @@ function initializeAddEventForm() {
 		timeOut: 5000,
 		hideEasing: 'linear',
 		showMethod: 'fadeIn',
-		hideMethod: 'fadeOut'
+		hideMethod: 'fadeOut',
 	}
 	
 	const bns = document.getElementsByClassName('save');
@@ -146,16 +151,16 @@ function submitAddEventForm(event) {
 	const form = document.getElementById('add-event-form');
 	const values = {};
 	for (const element of form.elements)
-	   values[element.name] = element.value;
-	
+		values[element.name] = element.value;
+
 	if (values['event-duration'].length === 0)
 		return toastr.warning(chrome.i18n.getMessage('message_error_no_duration'));
-	
-	if (values['event-start-times'].length === 0)
+
+	const startTimes = addEventStartTimesDiv.innerText.split(', ').filter(s => s.length > 0);
+	if (startTimes.length === 0)
 		return toastr.warning(chrome.i18n.getMessage('message_error_no_start_times'));
-	
+
 	const duration = moment.duration(values['event-duration'], 'HH:mm');
-	const startTimes = values['event-start-times'].split('; ');
 	const isAllDay = duration.asMilliseconds() === 0;
 	for (let i = 0; i < startTimes.length; i++) {
 		const start = moment(startTimes[i]);
@@ -176,8 +181,8 @@ function submitAddEventForm(event) {
 			eventResource.reminders.overrides = [{method: 'popup', 'minutes': values['event-notification']}];
 
 		const request = gapi.client.calendar.events.insert({
-			'calendarId': values['event-calendar-list'],
-			'resource': eventResource
+			calendarId: values['event-calendar-list'],
+			resource: eventResource
 		});
 
 		request.execute(function(response) {
@@ -197,9 +202,8 @@ function submitAddEventForm(event) {
 	toastr.success(chrome.i18n.getMessage('message_success_event_created', [startTimes.length]));
 }
 
-
 function saveDefaultValue(event) {
-	const updateInput = document.getElementById(event.srcElement.dataset.field);
+	const updateInput = document.getElementById(event.target.dataset.field);
 	const selectCalendar = document.getElementById('add-event-calendar-list');
 	const selectedCalendarId = selectCalendar.options[selectCalendar.selectedIndex].value;
 	
@@ -219,11 +223,11 @@ function setFlatpickerLocale() {
 		return JSON.parse(jsonString);
 	}
 	
-	Flatpickr.l10ns.default.weekdays.shorthand = getLocaleJson('flatpickr_weekdays_shorthand');
-	Flatpickr.l10ns.default.weekdays.longhand = getLocaleJson('flatpickr_weekdays_longhand');
-	Flatpickr.l10ns.default.months.shorthand = getLocaleJson('flatpickr_months_shorthand');
-	Flatpickr.l10ns.default.months.longhand = getLocaleJson('flatpickr_months_longhand');
-	Flatpickr.l10ns.default.scrollTitle = chrome.i18n.getMessage('flatpickr_scrollTitle');
-	Flatpickr.l10ns.default.toggleTitle = chrome.i18n.getMessage('flatpickr_toggleTitle');
-	Flatpickr.l10ns.default.firstDayOfWeek = parseInt(chrome.i18n.getMessage('flatpickr_firstDayOfWeek'));
+	flatpickr.l10ns.default.weekdays.shorthand = getLocaleJson('flatpickr_weekdays_shorthand');
+	flatpickr.l10ns.default.weekdays.longhand = getLocaleJson('flatpickr_weekdays_longhand');
+	flatpickr.l10ns.default.months.shorthand = getLocaleJson('flatpickr_months_shorthand');
+	flatpickr.l10ns.default.months.longhand = getLocaleJson('flatpickr_months_longhand');
+	flatpickr.l10ns.default.scrollTitle = chrome.i18n.getMessage('flatpickr_scrollTitle');
+	flatpickr.l10ns.default.toggleTitle = chrome.i18n.getMessage('flatpickr_toggleTitle');
+	flatpickr.l10ns.default.firstDayOfWeek = parseInt(chrome.i18n.getMessage('flatpickr_firstDayOfWeek'));
 }
