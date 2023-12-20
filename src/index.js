@@ -8,7 +8,7 @@ const addEventStartTimesDiv = document.getElementById('add-event-start-times');
 const defaults = {};
 let lastUpdatedCalendarId;
 let flatpickrCalendar;
-let accessToken;
+let calendar;
 
 /* Initialize extension: set localization string, call check authorization. */
 window.onload = function() {
@@ -20,12 +20,6 @@ window.onload = function() {
 function checkAuth() {
     chrome.identity.getAuthToken({interactive: false}, handleAuthResult);
 }
-
-function revokeAccess() {
-    console.log('Removing access token', accessToken);
-    chrome.identity.removeCachedAuthToken({token: accessToken}, checkAuth);
-}
-
 
 function localizeAttribute(attribute) {
 	const objects = document.querySelectorAll('[data-' + attribute.toLowerCase() + ']');
@@ -43,11 +37,11 @@ function handleAuthResult(authResult) {
     const addEventDiv = document.getElementById('add-event-form');
 
     if (authResult && !authResult.error) {
-        gapi.client.setToken({access_token: authResult});
         authorizeDiv.style.display = 'none';
         addEventDiv.style.display = 'inline';
 		addEventDiv.addEventListener('submit', submitAddEventForm);
-        gapi.client.load('calendar', 'v3', initializeAddEventForm);
+		calendar = new Calendar(authResult);
+        initializeAddEventForm();
     } else {
         // Show auth UI, allowing the user to initiate authorization by
         // clicking authorize button, hide other UI.
@@ -62,15 +56,10 @@ function handleAuthResult(authResult) {
 
 /** Initializes the add event form with user's calendars and Flatpickr for duration/start times */
 function initializeAddEventForm() {
-    const request = gapi.client.calendar.calendarList.list({
+    calendar.list({
         minAccessRole: 'writer',
         showDeleted: false
-	});
-
-    request.execute(function(response) {
-        if (response?.code === 401) return revokeAccess();
-		if ('error' in response) return toastr.error(response['message']);
-
+	}).then(response => {
         const calendars = response.items;
 
         const selectCalendar = document.getElementById('add-event-calendar-list');
@@ -108,7 +97,7 @@ function initializeAddEventForm() {
 
             selectCalendar.onchange();
 		});
-    });
+    }).catch(({ message }) => toastr.error(message));
 	
 	setFlatpickerLocale();
 	flatpickrCalendar = flatpickr(addEventStartTimesDiv, {
@@ -145,7 +134,7 @@ function initializeAddEventForm() {
 	}
 }
 
-function submitAddEventForm(event) {
+async function submitAddEventForm(event) {
 	event.preventDefault();
 	
 	const form = document.getElementById('add-event-form');
@@ -174,23 +163,18 @@ function submitAddEventForm(event) {
 			}
 		};
 
-		eventResource['start'] = isAllDay ?  { date: start.format('YYYY-MM-DD') } : { dateTime: start.format() };
-        eventResource['end'] = isAllDay ? { date: start.format('YYYY-MM-DD') } : { dateTime: end.format() };
+		eventResource.start = isAllDay ?  { date: start.format('YYYY-MM-DD') } : { dateTime: start.format() };
+        eventResource.end = isAllDay ? { date: start.format('YYYY-MM-DD') } : { dateTime: end.format() };
 
 		if (shouldOverrideReminders)
 			eventResource.reminders.overrides = [{method: 'popup', 'minutes': values['event-notification']}];
 
-		const request = gapi.client.calendar.events.insert({
-			calendarId: values['event-calendar-list'],
-			resource: eventResource
-		});
+		try {
+			await calendar.insertEvent(values['event-calendar-list'], eventResource);
+		} catch (error) {
+			return toastr.error(error.message);
+		}
 
-		request.execute(function(response) {
-            if (response?.code === 401) return revokeAccess();
-			if ('error' in response) return toastr.error(response['message']);
-		});
-
-        chrome.storage.sync.set({lastUpdatedCalendarId: values['event-calendar-list']}, () => { });
 	}
 
 	const selectCalendar = document.getElementById('add-event-calendar-list');
@@ -199,6 +183,7 @@ function submitAddEventForm(event) {
 	flatpickrCalendar.clear();
 	selectCalendar.selectedIndex = selectedIndex;
 	selectCalendar.onchange();
+	chrome.storage.sync.set({lastUpdatedCalendarId: values['event-calendar-list']}, () => { });
 	toastr.success(chrome.i18n.getMessage('message_success_event_created', [startTimes.length]));
 }
 
@@ -212,9 +197,8 @@ function saveDefaultValue(event) {
 	}
 	defaults[selectedCalendarId][updateInput.name] = updateInput.value.trim();
 
-	chrome.storage.sync.set({defaults}, function() {
-		toastr.success(chrome.i18n.getMessage('message_success_saved_default'));
-	});
+	chrome.storage.sync.set({ defaults },
+		() => toastr.success(chrome.i18n.getMessage('message_success_saved_default')));
 }
 
 function setFlatpickerLocale() {
@@ -230,4 +214,45 @@ function setFlatpickerLocale() {
 	flatpickr.l10ns.default.scrollTitle = chrome.i18n.getMessage('flatpickr_scrollTitle');
 	flatpickr.l10ns.default.toggleTitle = chrome.i18n.getMessage('flatpickr_toggleTitle');
 	flatpickr.l10ns.default.firstDayOfWeek = parseInt(chrome.i18n.getMessage('flatpickr_firstDayOfWeek'));
+}
+
+class Calendar {
+	constructor(accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	list(options) {
+		const query = options ? '?' + new URLSearchParams(options).toString() : '';
+		return this.#request('GET', `/users/me/calendarList${query}`);
+	}
+
+	insertEvent(calendarId, event) {
+		return this.#request('POST', `/calendars/${calendarId}/events`, JSON.stringify(event));
+	}
+
+	#request(method, path, body) {
+		const options = {
+			method,
+			body,
+			headers: {
+				Authorization: `Bearer ${this.accessToken}`,
+			}
+		};
+		return fetch(`https://www.googleapis.com/calendar/v3${path}`, options)
+			.then(response => {
+				if (response.ok) return response.json();
+				if (response.status === 401)
+					chrome.identity.removeCachedAuthToken({token: this.accessToken}, checkAuth);
+				return response.text().then((text) => {
+					let message = text;
+					try {
+						const json = JSON.parse(text);
+						if ('message' in json) message = json.message;
+					} catch (e) {
+						// not JSON
+					}
+					return Promise.reject({message, code: response.status});
+				});
+			});
+	}
 }
