@@ -2,15 +2,8 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<link rel="stylesheet" href="browser_action.css" type="text/css">
-	<link rel="stylesheet" href="https://unpkg.com/flatpickr@2.3.4/dist/themes/material_green.css">
-	<link rel="stylesheet" href="https://unpkg.com/toastr@2.1.2/build/toastr.min.css">
-	<script src="bg.js"></script>
-	<script src="https://apis.google.com/js/client.js"></script>
-	<script src="https://unpkg.com/jquery@3.1.1/dist/jquery.min.js"></script>
-	<script src="https://unpkg.com/flatpickr@2.3.4"></script>
-	<script src="https://unpkg.com/moment@2.17.1/min/moment-with-locales.min.js"></script>
-	<script src="https://unpkg.com/toastr@2.1.2/build/toastr.min.js"></script>
+	<link rel="stylesheet" href="style.css" type="text/css">
+	<script src="index.js" type="module"></script>
 </head>
 
 <body>
@@ -52,9 +45,10 @@
 					<input id="add-event-notification" data-placeholder="add_event_notification_placeholder" type="number" name="event-notification" tabindex="3" />
 					<button data-field="add-event-notification" type="button" class="save"></button>
 				</div>
+				<div class="clear"></div>
 
 				<label for="add-event-start-times" data-innerhtml="add_event_start_times_label"></label>
-				<textarea id="add-event-start-times" name="event-start-times" tabindex="4"></textarea>
+				<div id="add-event-start-times" tabindex="4"></div>
 
 				<button id="add-event-button" data-innerhtml="add_event_button" class="submit" tabindex="5"></button>
 			</form>

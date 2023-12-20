@@ -34,20 +34,16 @@ section {
 }
 
 #add-event-start-times {
-  display: none;
-}
-
-textarea.start-times-visible {
   width: 100%;
   height: 100px;
   margin: 7px 0;
   padding: 3px;
   font-family: monospace;
   background: #eee;
+  -webkit-appearance: textarea;
 }
 
 #add-event-form label {
-  float: left;
   margin: 7px 0;
   padding: 3px;
   font-weight: bold;
@@ -56,6 +52,7 @@ textarea.start-times-visible {
 
 #add-event-settings label {
   width: 96px;
+  float: left;
 }
 
 #add-event-settings input {
@@ -130,7 +127,7 @@ button.submit:active {
 }
 
 button.save {
-  background: #777 url('icons/save.png');
+  background: #777 url('../public/icons/save.png');
   height: 17px;
   width: 17px;
   margin: 11px -23px;

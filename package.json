@@ -1,0 +1,15 @@
+{
+  "name": "calendar-event-duplicator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "flatpickr": "^4",
+    "moment": "^2",
+    "toastr": "^2",
+    "vite": "^5"
+  }
+}
